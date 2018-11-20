@@ -12,22 +12,31 @@ import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.app.ActivityCompat
 import android.widget.TextView
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.jar.Manifest
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private var locationManager: LocationManager?  = null
     private var locationListener: LocationListener? = null
+    private lateinit var mMap: GoogleMap
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        //val mapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
+        //mapFragment.getMapAsync(this)
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationListener = object : LocationListener{
             override fun onLocationChanged(location: Location?) {
-                textView.append("\n"+location!!.longitude+"\n"+location.latitude)
+                //textView.append("\n"+location!!.longitude+"\n"+location.latitude)
+
+                editText.setText(location!!.longitude.toString())
+                editText2.setText(location!!.latitude.toString())
             }
 
             override fun onProviderDisabled(provider: String?) {
@@ -63,5 +72,9 @@ class MainActivity : AppCompatActivity() {
         gpsBtn.setOnClickListener {
             locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
         }
+    }
+
+    override fun onMapReady(p0: GoogleMap?) {
+
     }
 }
