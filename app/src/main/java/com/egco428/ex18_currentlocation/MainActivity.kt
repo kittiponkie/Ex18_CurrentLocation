@@ -11,11 +11,16 @@ import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.support.v4.app.ActivityCompat
+import android.util.Log
 import android.widget.TextView
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.Double.parseDouble
 import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -27,8 +32,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //val mapFragment = supportFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment
-        //mapFragment.getMapAsync(this)
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         locationListener = object : LocationListener{
@@ -37,6 +42,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
 
                 editText.setText(location!!.longitude.toString())
                 editText2.setText(location!!.latitude.toString())
+                locationManager!!.removeUpdates(locationListener)
             }
 
             override fun onProviderDisabled(provider: String?) {
@@ -69,12 +75,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback {
             }
             return
         }
+
         gpsBtn.setOnClickListener {
-            locationManager!!.requestLocationUpdates("gps",5000,0f,locationListener)
+            locationManager!!.requestLocationUpdates("gps",3000,0f,locationListener)
+
         }
     }
 
-    override fun onMapReady(p0: GoogleMap?) {
+    override fun onMapReady(p0: GoogleMap) {
+        mMap = p0
+        Log.d("test","ok")
+        // Add a marker in Sydney and move the camera
+        val sydney = LatLng(-34.0, 151.0)
+        val mu = LatLng(13.793406,100.322514)
+        mMap.addMarker(MarkerOptions().position(mu).title("Marker in Mahidol"))
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(mu,6f))
 
+        markBtn.setOnClickListener {
+            var latitude = editText.text
+            var longtitude = editText2.text
+            Log.d("test","latitude : "+latitude)
+            Log.d("test","longtitude : "+longtitude)
+            var newlatlng = LatLng(latitude.toString().toDouble(),longtitude.toString().toDouble())
+            mMap.addMarker(MarkerOptions().position(newlatlng))
+            mMap.animateCamera(CameraUpdateFactory.newLatLng(newlatlng))
+        }
     }
 }
